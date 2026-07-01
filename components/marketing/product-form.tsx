@@ -62,6 +62,7 @@ export function ProductForm({
     control,
     reset,
     watch,
+    getValues,
     setValue,
     formState: { errors },
   } = useForm<ProductFormValues>({
@@ -140,7 +141,7 @@ export function ProductForm({
   const [isSuggesting, setIsSuggesting] = React.useState(false)
 
   const handleSuggestDetails = async () => {
-    const name = watch("productName")
+    const name = getValues("productName")
     if (!name || !name.trim()) {
       setApiError(t("db_gen_form_error_suggest"))
       return
