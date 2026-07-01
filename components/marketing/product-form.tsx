@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { useRouter } from "next/navigation"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion, AnimatePresence } from "framer-motion"
 import {
@@ -61,7 +61,6 @@ export function ProductForm({
     handleSubmit,
     control,
     reset,
-    watch,
     getValues,
     setValue,
     formState: { errors },
@@ -81,7 +80,11 @@ export function ProductForm({
   })
 
   // Watch selected platforms for the sticky CTA count
-  const selectedPlatforms = watch("platforms") || []
+  const selectedPlatforms = useWatch({
+    control,
+    name: "platforms",
+    defaultValue: [],
+  })
 
   // Sync default output language with active UI language preference (until user manual interaction)
   React.useEffect(() => {
