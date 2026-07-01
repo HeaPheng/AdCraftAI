@@ -99,7 +99,7 @@ function LoginForm() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center p-4 sm:p-6 lg:p-8 bg-background select-none">
-      {/* Floating Back to Home Link (Top Left) */}
+      {/* Floating Back to Home Link (Top Lef) */}
       <div className="absolute top-4 left-4 z-50">
         <Link 
           href="/" 
