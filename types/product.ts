@@ -1,4 +1,5 @@
 import { z } from "zod/v4"
+import type { TranslationKey } from "@/lib/translations"
 
 /**
  * Static Zod schema for the AdCraft AI product information form.
@@ -50,7 +51,7 @@ export const productFormSchema = z.object({
  * Dynamic translated schema helper.
  * Provides localized validation messages in the user's active interface language.
  */
-export const getProductFormSchema = (t: (key: any) => string) =>
+export const getProductFormSchema = (t: (key: TranslationKey) => string) =>
   z.object({
     productName: z
       .string()

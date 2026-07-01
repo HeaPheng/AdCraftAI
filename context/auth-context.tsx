@@ -167,8 +167,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("DEMO_MODE_NOTICE")
     }
 
+    interface GoogleTokenResponse {
+      error?: string
+      error_description?: string
+      access_token?: string
+    }
+
+    interface GooglePopupError {
+      message?: string
+    }
+
+    interface GoogleOAuthClient {
+      requestAccessToken: () => void
+    }
+
+    interface GoogleOAuth {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: {
+            client_id: string
+            scope: string
+            callback: (tokenResponse: GoogleTokenResponse) => Promise<void>
+            error_callback?: (err: GooglePopupError) => void
+          }) => GoogleOAuthClient
+        }
+      }
+    }
+
     return new Promise((resolve, reject) => {
-      const google = (window as any).google
+      const google = (window as unknown as { google?: GoogleOAuth }).google
       if (!google || !google.accounts || !google.accounts.oauth2) {
         reject(new Error("Google Identity SDK is loading. Please try again in 2 seconds."))
         return
@@ -178,7 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const client = google.accounts.oauth2.initTokenClient({
           client_id: clientId,
           scope: "https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
-          callback: async (tokenResponse: any) => {
+          callback: async (tokenResponse: GoogleTokenResponse) => {
             if (tokenResponse.error) {
               reject(new Error(`Google Sign-In failed: ${tokenResponse.error_description || tokenResponse.error}`))
               return
@@ -216,14 +243,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               reject(new Error("An error occurred during Google profile verification."))
             }
           },
-          error_callback: (err: any) => {
+          error_callback: (err: GooglePopupError) => {
             reject(new Error(`Google Sign-In Popup Error: ${err.message || "Consent closed."}`))
           }
         })
 
         client.requestAccessToken()
-      } catch (error: any) {
-        reject(new Error(`Failed to initialize Google Login Client: ${error.message}`))
+      } catch (error: unknown) {
+        reject(new Error(`Failed to initialize Google Login Client: ${(error as Error).message}`))
       }
     })
   }

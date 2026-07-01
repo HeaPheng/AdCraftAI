@@ -11,6 +11,10 @@ export interface User {
   defaultLanguage?: string
 }
 
+export interface DbUser extends User {
+  password?: string
+}
+
 export interface TempGeneration {
   productName: string
   formData: ProductFormValues
@@ -63,11 +67,11 @@ export const authService = {
     await new Promise((resolve) => setTimeout(resolve, 600))
 
     const dbRaw = localStorage.getItem(STORAGE_KEYS.USERS_DB)
-    const users = dbRaw ? JSON.parse(dbRaw) : []
+    const users: DbUser[] = dbRaw ? JSON.parse(dbRaw) : []
 
     const normalizedEmail = email.toLowerCase().trim()
     const match = users.find(
-      (u: any) => u.email.toLowerCase().trim() === normalizedEmail && u.password === password
+      (u) => u.email.toLowerCase().trim() === normalizedEmail && u.password === password
     )
 
     if (!match) {
@@ -75,7 +79,8 @@ export const authService = {
     }
 
     // Strip password before returning and storing in session
-    const { password: _, ...user } = match
+    const user: DbUser = { ...match }
+    delete user.password
     localStorage.setItem(STORAGE_KEYS.USER_SESSION, JSON.stringify(user))
     return user
   },
@@ -90,10 +95,10 @@ export const authService = {
     await new Promise((resolve) => setTimeout(resolve, 800))
 
     const dbRaw = localStorage.getItem(STORAGE_KEYS.USERS_DB)
-    const users = dbRaw ? JSON.parse(dbRaw) : []
+    const users: DbUser[] = dbRaw ? JSON.parse(dbRaw) : []
 
     const normalizedEmail = email.toLowerCase().trim()
-    const exists = users.some((u: any) => u.email.toLowerCase().trim() === normalizedEmail)
+    const exists = users.some((u) => u.email.toLowerCase().trim() === normalizedEmail)
 
     if (exists) {
       throw new Error("An account with this email address already exists.")
@@ -186,9 +191,9 @@ export const authService = {
     if (!isClient()) throw new Error("Client execution required")
 
     const dbRaw = localStorage.getItem(STORAGE_KEYS.USERS_DB)
-    const users = dbRaw ? JSON.parse(dbRaw) : []
+    const users: DbUser[] = dbRaw ? JSON.parse(dbRaw) : []
 
-    const userIdx = users.findIndex((u: any) => u.id === userId)
+    const userIdx = users.findIndex((u) => u.id === userId)
     if (userIdx === -1) {
       throw new Error("User not found")
     }
@@ -204,7 +209,8 @@ export const authService = {
     // Update active session if it matches current user
     const current = this.getCurrentUser()
     if (current && current.id === userId) {
-      const { password: _, ...sessionUser } = updatedUser
+      const sessionUser: DbUser = { ...updatedUser }
+      delete sessionUser.password
       localStorage.setItem(STORAGE_KEYS.USER_SESSION, JSON.stringify(sessionUser))
       return sessionUser
     }

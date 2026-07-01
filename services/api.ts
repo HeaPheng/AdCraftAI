@@ -165,7 +165,7 @@ export async function suggestProductDetails(productName: string): Promise<{
     }
 
     return data
-  } catch (error) {
+  } catch {
     return {
       success: false,
       error: "Something went wrong fetching suggestions. Please try again.",
